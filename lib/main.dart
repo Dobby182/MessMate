@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
 import 'food_screen.dart';
 
-
 void main() {
-  runApp(MessMateApp());
+  runApp(const MessMateApp());
 }
 
 class MessMateApp extends StatelessWidget {
+  const MessMateApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MessMate',
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+      ),
+      home: const LoginScreen(),
     );
   }
 }
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
-
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -37,91 +41,95 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.green[100],
 
       appBar: AppBar(
-        title: Text("MessMate Login"),
-        backgroundColor: Colors.green,
+        title: const Text("MessMate Login"),
         centerTitle: true,
       ),
 
       body: Center(
 
-        child: Padding(
+        child: SingleChildScrollView(
 
-          padding: EdgeInsets.all(20),
+          child: Padding(
 
-          child: Column(
+            padding: const EdgeInsets.all(20),
 
-            mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
 
-            children: [
+              mainAxisAlignment: MainAxisAlignment.center,
 
-              Icon(
-                Icons.restaurant,
-                size: 100,
-                color: Colors.green,
-              ),
+              children: [
 
-              SizedBox(height: 20),
-
-              Text(
-                "Welcome to MessMate",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                const Icon(
+                  Icons.restaurant,
+                  size: 100,
+                  color: Colors.green,
                 ),
-              ),
 
-              SizedBox(height: 30),
+                const SizedBox(height: 20),
 
-              TextField(
-                controller: rollController,
-                decoration: InputDecoration(
-                  labelText: "Roll Number",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              SizedBox(height: 20),
-
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              SizedBox(height: 30),
-
-              ElevatedButton(
-
-                onPressed: () {
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FoodScreen(),
-                    ),
-                  );
-
-                },
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 50,
-                    vertical: 15,
+                const Text(
+                  "Welcome to MessMate",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
-                child: Text(
-                  "Login",
-                  style: TextStyle(fontSize: 18),
+                const SizedBox(height: 30),
+
+                TextField(
+                  controller: rollController,
+                  decoration: const InputDecoration(
+                    labelText: "Roll Number",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
 
-              ),
+                const SizedBox(height: 20),
 
-            ],
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+
+                    onPressed: () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FoodScreen(),
+                        ),
+                      );
+
+                    },
+
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                      ),
+                    ),
+
+                    child: const Text(
+                      "Login",
+                      style: TextStyle(fontSize: 18),
+                    ),
+
+                  ),
+                ),
+
+              ],
+
+            ),
 
           ),
 
