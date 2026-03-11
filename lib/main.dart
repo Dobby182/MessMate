@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'food_screen.dart';
+import 'admin_screen.dart';
 
 void main() {
   runApp(const MessMateApp());
@@ -104,12 +105,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     onPressed: () {
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FoodScreen(),
-                        ),
-                      );
+                      String rollNo = rollController.text.trim();
+                      if (rollNo.toUpperCase() == 'ADMIN') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AdminScreen(),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FoodScreen(rollNumber: rollNo),
+                          ),
+                        );
+                      }
 
                     },
 

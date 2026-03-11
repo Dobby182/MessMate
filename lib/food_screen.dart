@@ -1,159 +1,160 @@
 import 'package:flutter/material.dart';
+import '../data/global_data.dart';
+import '../models/food_item.dart';
+import '../models/order.dart';
+import 'qr_token_screen.dart';
 
 class FoodScreen extends StatefulWidget {
-  const FoodScreen({super.key});
+  final String rollNumber;
+  const FoodScreen({super.key, required this.rollNumber});
 
   @override
   State<FoodScreen> createState() => _FoodScreenState();
 }
 
 class _FoodScreenState extends State<FoodScreen> {
+  Map<String, int> quantity = {};
+  Map<String, String> selectedDate = {};
 
-  Map<String, int> quantity = {
-    "egg": 0,
-    "chicken_gravy": 0,
-    "chilligobi": 0,
-    "mushroom_manchurian": 0,
-    "omlette": 0
-  };
+  @override
+  void initState() {
+    super.initState();
+    _initializeState();
+  }
 
-  List<String> dates = [
-    "25-02-2026",
-    "26-02-2026",
-    "27-02-2026"
-  ];
+  void _initializeState() {
+    for (var food in GlobalData.availableFoods) {
+      if (!quantity.containsKey(food.id)) {
+        quantity[food.id] = 0;
+      }
+      if (!selectedDate.containsKey(food.id)) {
+        selectedDate[food.id] = food.availableDates.isNotEmpty ? food.availableDates.first : "";
+      }
+    }
+  }
 
-  Map<String, String> selectedDate = {
-    "egg": "25-02-2026",
-    "chicken_gravy": "25-02-2026",
-    "chilligobi": "25-02-2026",
-    "mushroom_manchurian": "25-02-2026",
-    "omlette": "25-02-2026"
-  };
+  Widget foodCard(FoodItem food) {
+    String keyName = food.id;
 
-  Widget foodCard(
-      String title,
-      String keyName,
-      String imagePath,
-      int price
-      ) {
+    // Default values if keys are somehow missing
+    int currentQuantity = quantity[keyName] ?? 0;
+    String currentDate = selectedDate[keyName] ?? "";
 
     return Card(
-
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-
       child: Padding(
-
         padding: const EdgeInsets.all(10),
-
         child: Column(
           mainAxisSize: MainAxisSize.min,
-
           children: [
-
             Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16
-              ),
+              food.name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-
             Text(
-              "PER ₹$price",
+              "PER ₹${food.price}",
               style: const TextStyle(fontSize: 14),
             ),
-
             const SizedBox(height: 8),
-
-            Image.asset(
-              imagePath,
-              height: 70,
-              fit: BoxFit.contain,
+            Expanded(
+              child: Image.asset(
+                food.imagePath,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.fastfood, size: 50, color: Colors.grey),
+              ),
             ),
-
             const SizedBox(height: 8),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-
                 IconButton(
                   icon: const Icon(Icons.remove),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   onPressed: () {
                     setState(() {
-                      if (quantity[keyName]! > 0) {
-                        quantity[keyName] =
-                            quantity[keyName]! - 1;
+                      if (currentQuantity > 0) {
+                        quantity[keyName] = currentQuantity - 1;
                       }
                     });
                   },
                 ),
-
-                Text(
-                  "${quantity[keyName]}",
-                  style: const TextStyle(fontSize: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    "$currentQuantity",
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ),
-
                 IconButton(
                   icon: const Icon(Icons.add),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   onPressed: () {
                     setState(() {
-                      quantity[keyName] =
-                          quantity[keyName]! + 1;
+                      quantity[keyName] = currentQuantity + 1;
                     });
                   },
                 ),
-
               ],
             ),
-
             DropdownButton<String>(
-
-              value: selectedDate[keyName],
-
+              value: food.availableDates.contains(currentDate) ? currentDate : (food.availableDates.isNotEmpty ? food.availableDates.first : null),
               isExpanded: true,
-
-              items: dates.map((String date) {
-
+              items: food.availableDates.map((String date) {
                 return DropdownMenuItem<String>(
                   value: date,
-                  child: Text(date),
+                  child: Text(date, style: const TextStyle(fontSize: 12)),
                 );
-
               }).toList(),
-
               onChanged: (value) {
                 setState(() {
-                  selectedDate[keyName] = value!;
+                  if (value != null) {
+                    selectedDate[keyName] = value;
+                  }
                 });
               },
-
             ),
-
             const SizedBox(height: 5),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-
-                onPressed: () {},
-
-                icon: const Icon(Icons.shopping_cart),
-
-                label: const Text("Add"),
-
+                onPressed: () {
+                  if (currentQuantity > 0 && currentDate.isNotEmpty) {
+                    Order order = Order(
+                      rollNumber: widget.rollNumber,
+                      foodName: food.name,
+                      quantity: currentQuantity,
+                      date: currentDate,
+                      price: food.price * currentQuantity,
+                      timestamp: DateTime.now(),
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QRTokenScreen(order: order),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Please select a quantity and date.")),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.shopping_cart, size: 16),
+                label: const Text("Add", style: TextStyle(fontSize: 14)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                 ),
-
               ),
             )
-
           ],
         ),
       ),
@@ -162,62 +163,28 @@ class _FoodScreenState extends State<FoodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Re-initialize state in case available foods changed since we were last here
+    _initializeState();
 
     return Scaffold(
-
       appBar: AppBar(
         title: const Text("MessMate - Book Food"),
         backgroundColor: Colors.green,
         centerTitle: true,
       ),
-
-      body: GridView.count(
-
-        crossAxisCount: 2,
-        padding: const EdgeInsets.all(10),
-
-        // increased height to remove overflow
-        childAspectRatio: 0.55,
-
-        children: [
-
-          foodCard(
-              "Boiled Egg",
-              "egg",
-              "assets/images/fooditem-egg.png",
-              10
-          ),
-
-          foodCard(
-              "Chicken Gravy",
-              "chicken_gravy",
-              "assets/images/fooditem-chicken_gravy.png",
-              80
-          ),
-
-          foodCard(
-              "Chilli Gobi",
-              "chilligobi",
-              "assets/images/fooditem-chilligobi.png",
-              40
-          ),
-
-          foodCard(
-              "Mushroom Manchurian",
-              "mushroom_manchurian",
-              "assets/images/fooditem-mushroom_manchurian.png",
-              60
-          ),
-
-          foodCard(
-              "Omlette",
-              "omlette",
-              "assets/images/fooditem-omlette.png",
-              10
-          ),
-
-        ],
-      ),
+      body: GlobalData.availableFoods.isEmpty
+          ? const Center(child: Text("No food items available."))
+          : GridView.builder(
+              padding: const EdgeInsets.all(10),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.55,
+              ),
+              itemCount: GlobalData.availableFoods.length,
+              itemBuilder: (context, index) {
+                return foodCard(GlobalData.availableFoods[index]);
+              },
+            ),
     );
   }
 }
