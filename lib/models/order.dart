@@ -1,4 +1,5 @@
 class Order {
+  final String id;
   final String rollNumber;
   final String foodName;
   final int quantity;
@@ -7,6 +8,7 @@ class Order {
   final DateTime timestamp;
 
   Order({
+    required this.id,
     required this.rollNumber,
     required this.foodName,
     required this.quantity,
@@ -17,6 +19,7 @@ class Order {
   
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'rollNumber': rollNumber,
       'foodName': foodName,
       'quantity': quantity,

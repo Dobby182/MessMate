@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'food_screen.dart';
 import 'admin_screen.dart';
+import 'distributor_screen.dart';
+import 'student_home_screen.dart';
 
 void main() {
   runApp(const MessMateApp());
@@ -113,11 +114,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             builder: (context) => const AdminScreen(),
                           ),
                         );
+                      } else if (rollNo.toUpperCase() == 'DISTRIBUTOR') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DistributorScreen(),
+                          ),
+                        );
                       } else {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => FoodScreen(rollNumber: rollNo),
+                            builder: (context) => StudentHomeScreen(rollNumber: rollNo),
                           ),
                         );
                       }

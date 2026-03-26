@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/global_data.dart';
+import '../models/order.dart';
 
 class OrderValidationScreen extends StatelessWidget {
   final String tokenId;
@@ -60,11 +61,53 @@ class OrderValidationScreen extends StatelessWidget {
             const Spacer(),
             ElevatedButton(
               onPressed: () {
+                // 🔹 FIX: clean date (gallery scans may add spaces/newline)
+                String cleanedDate = date.trim();
+
+                // 🔹 Convert string date → DateTime
+                List parts = cleanedDate.split("-");
+                DateTime orderDate = DateTime(
+                  int.parse(parts[2]), // year
+                  int.parse(parts[1]), // month
+                  int.parse(parts[0]), // day
+                );
+
+                DateTime now = DateTime.now();
+
+                // 🔹 Compare only date (ignore time)
+                if (orderDate.year != now.year ||
+                    orderDate.month != now.month ||
+                    orderDate.day != now.day) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Invalid date')));
+                  return;
+                }
+
+                // 🔹 Duplicate token check
+                if (GlobalData.servedTokens.contains(tokenId)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Token already used')),
+                  );
+                  return;
+                }
+
+                // 🔹 Mark token as served
                 GlobalData.servedTokens.add(tokenId);
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Food Served')),
+                int index = GlobalData.userOrders.indexWhere(
+                  (order) => order.id == tokenId,
                 );
+
+                if (index != -1) {
+                  Order completedOrder = GlobalData.userOrders.removeAt(index);
+                  GlobalData.completedOrders.add(completedOrder);
+                }
+
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Food Served')));
+
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
